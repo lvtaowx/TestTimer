@@ -7,9 +7,11 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <CurrentThread.h>
 #include <TimerQueue.h>
+//#include <Epoller.h>
 #include <EventLoop.h>
 #include <EventLoopThread.h>
 
@@ -17,7 +19,7 @@ using namespace netlib::base;
 using namespace netlib::net;
 
 int cnt = 0;
-EventLoop t_loop;
+//EventLoop t_loop;
 
 void printTid()
 {
@@ -27,17 +29,19 @@ void printTid()
 
 void print(const char* msg)
 {
-	printf("now = %s   msg = %s \n", TimeStamp::now().toString().c_str(), msg);
-
+	printf("%s %s now = %s   msg = %s \n", __FUNCTION__, __FILE__, TimeStamp::now().toString().c_str(), msg);
 }
 
-void cancel(TimerId timerId)
-{
-	t_loop.cancel(timerId);
-	printf("cancel time = %s\n", TimeStamp::now().toString().c_str());
-}
+//void cancel(TimerId timerId)
+//{
+//	t_loop.cancel(timerId);
+//	printf("cancel time = %s\n", TimeStamp::now().toString().c_str());
+//}
 
 // test atomic
+
+const int kInitEventListSize = 16;
+
 int main()
 {
 //	AtomicInt64 atomic;
@@ -55,9 +59,39 @@ int main()
 //	t_loop = &loop;
 
 	printf("main\n");
-	loop.runAfter(1, boost::bind(print, "test1"));
+	loop.runAfter(3, boost::bind(print, "test1"));
+	loop.loop();
 
+	sleep(5);
 
+/*
+ *  this timerfd has been tested
+ *  first test
+ *
+	EpEvent epEvent;
+	EpEventList epEventList(kInitEventListSize);
+
+	int timerFd = createTimerFd();
+	int epFd = createPollFd();
+
+	epEvent.events = EPOLLIN | EPOLLPRI;
+	epEvent.data.fd = timerFd;
+	upodateOpts(epFd, ADD, timerFd, &epEvent);
+	resetTimerFd(timerFd, addTime(TimeStamp::now(), 10));
+	while(1)
+	{
+		int nums = pollFd(epFd, epEventList, 500);
+		sleep(1);
+		if(nums > 0)
+		{
+			printf("%s %s now = %s   num = %d \n", \
+				__FUNCTION__, __FILE__, TimeStamp::now().toString().c_str(), nums);
+			break;
+		}
+	}
+
+*/
+	return 0;
 }
 
 

@@ -3,6 +3,7 @@
 	<name>TestTimer</name>
 	<comment></comment>
 	<projects>
+		<project>networklib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
